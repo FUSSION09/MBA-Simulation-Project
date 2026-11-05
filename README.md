@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MBA Business Simulator
 
-## Getting Started
+A comprehensive, executive decision-support business war-game for graduate business education (MBA programs), simulating realistic enterprise operations, competitive market dynamics, GAAP financial reporting, and scenario dilemmas.
 
-First, run the development server:
+---
+
+## Key Features
+
+1. **5 C-Suite Executive Decision Pillars**:
+   - **CMO (Marketing & Pricing)**: Price elasticity per segment (Economy, Mainstream, Premium), advertising channel budgets, sales force headcount.
+   - **COO (Operations & Capacity)**: Production scheduling, plant capacity expansions ($55/unit CAPEX), automation levels (1-10 reducing labor costs), TQM and green ESG initiatives.
+   - **CTO (R&D & Innovation)**: Segment-specific feature investments and product refresh cycles.
+   - **CHRO (Human Capital)**: Wage adjustments vs industry benchmarks, performance bonus pools, workforce training budgets.
+   - **CFO (Treasury & Capital Structure)**: Short-term operating debt, corporate bond issuances, equity issuance / share buybacks, dividend distributions.
+
+2. **GAAP Financial Engine**:
+   - **Income Statement (P&L)**: Revenue, COGS (materials, labor, depreciation, holding), Gross Profit, OpEx, Operating Income (EBIT), Taxes (21%), Net Income.
+   - **Balance Sheet**: Assets = Liabilities + Shareholders' Equity (strictly balanced double-entry accounting).
+   - **Cash Flow Statement**: Operating, Investing, and Financing cash flows.
+   - **Valuation & Credit Ratings**: EPS, Book Value, ROE-driven P/E multiples, credit rating tiers (AAA to D).
+
+3. **Autonomous AI Rivals**:
+   - **Apex Dynamics**: Cost Leader archetype (high volume, heavy automation, low price).
+   - **Novus Tech**: Premium Differentiator archetype (high R&D, brand advertising, top ESG).
+   - **Vanguard Industries**: Balanced Incumbent archetype (stable dividends, balanced segment presence).
+
+4. **Executive Dilemmas**:
+   - Quarterly strategic dilemmas (e.g. ESG supplier sourcing, labor union collective bargaining, patent infringement lawsuits, inflation rate shocks) with tangible trade-offs.
+
+5. **Cohort Multiplayer Rooms**:
+   - Instructor lobby creation (with PIN-protected round advancement).
+   - Student team registration, real-time submission tracking, and cohort leaderboards.
+
+---
+
+## Running the Simulator
+
+Inside this directory:
 
 ```bash
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Or build and launch production server
+npm run build
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Visit [http://localhost:3000](http://localhost:3000) to access the Executive Suite.
