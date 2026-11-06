@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { motion } from 'motion/react';
 import { CompanyReport, MacroEnvironment, MarketSegment } from '@/lib/engine/types';
 import {
   TrendingUp,
@@ -170,9 +171,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                   <span className="font-semibold text-emerald-400 font-mono">{company.scorecard.financialScore}/100</span>
                 </div>
                 <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-emerald-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${Math.min(100, Math.max(0, company.scorecard.financialScore))}%` }}
+                  <motion.div
+                    className="bg-emerald-500 h-2 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(100, Math.max(0, company.scorecard.financialScore))}%` }}
+                    transition={{ type: "spring", stiffness: 100, damping: 20 }}
                   />
                 </div>
               </div>
@@ -183,9 +186,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                   <span className="font-semibold text-blue-400 font-mono">{company.scorecard.customerScore}/100</span>
                 </div>
                 <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${Math.min(100, Math.max(0, company.scorecard.customerScore))}%` }}
+                  <motion.div
+                    className="bg-blue-500 h-2 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(100, Math.max(0, company.scorecard.customerScore))}%` }}
+                    transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.05 }}
                   />
                 </div>
               </div>
@@ -196,9 +201,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                   <span className="font-semibold text-purple-400 font-mono">{company.scorecard.internalProcessScore}/100</span>
                 </div>
                 <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-purple-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${Math.min(100, Math.max(0, company.scorecard.internalProcessScore))}%` }}
+                  <motion.div
+                    className="bg-purple-500 h-2 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(100, Math.max(0, company.scorecard.internalProcessScore))}%` }}
+                    transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
                   />
                 </div>
               </div>
@@ -209,9 +216,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                   <span className="font-semibold text-amber-400 font-mono">{company.scorecard.learningGrowthScore}/100</span>
                 </div>
                 <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-amber-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${Math.min(100, Math.max(0, company.scorecard.learningGrowthScore))}%` }}
+                  <motion.div
+                    className="bg-amber-500 h-2 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(100, Math.max(0, company.scorecard.learningGrowthScore))}%` }}
+                    transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.15 }}
                   />
                 </div>
               </div>
@@ -246,7 +255,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                 const res = company.segmentResults[seg];
                 const sharePct = (res.companyShare * 100).toFixed(1);
                 return (
-                  <div key={seg} className="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 text-xs space-y-2.5 shadow-sm">
+                  <motion.div
+                    key={seg}
+                    whileHover={{ y: -3 }}
+                    className="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 text-xs space-y-2.5 shadow-sm transition-colors hover:border-slate-700"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="font-bold capitalize text-slate-200 text-sm tracking-tight">{seg}</span>
                       <span className="bg-blue-950/80 text-blue-300 border border-blue-800/80 px-2 py-0.5 rounded font-mono text-[11px] font-semibold">
@@ -278,7 +291,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                         <span className="text-emerald-400 font-mono font-bold">${(res.revenue / 1_000).toLocaleString()}k</span>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>

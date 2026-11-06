@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { motion } from 'motion/react';
 import { CompanyReport } from '@/lib/engine/types';
 import { DILEMMAS_BY_QUARTER, DilemmaChoice } from '@/lib/engine/dilemmas';
 import { AlertTriangle, CheckCircle2, DollarSign } from 'lucide-react';
@@ -42,13 +43,15 @@ export const DilemmasTab: React.FC<DilemmasTabProps> = ({
             {dilemma.options.map((opt) => {
               const isSelected = selectedChoiceId === opt.id;
               return (
-                <div
+                <motion.div
                   key={opt.id}
                   onClick={() => onSelectChoice(opt)}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
                   className={`min-h-[56px] p-3.5 sm:p-4 rounded-xl border transition cursor-pointer flex flex-col sm:flex-row sm:items-start justify-between gap-3 ${
                     isSelected
-                      ? 'bg-blue-950/50 border-blue-500 ring-1 ring-blue-500/50'
-                      : 'bg-slate-950/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900/60 active:bg-slate-900'
+                      ? 'bg-blue-950/50 border-blue-500 ring-1 ring-blue-500/50 shadow-sm'
+                      : 'bg-slate-950/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900/60'
                   }`}
                 >
                   <div className="space-y-1">
@@ -70,7 +73,7 @@ export const DilemmasTab: React.FC<DilemmasTabProps> = ({
                       {opt.cost > 0 ? `-$${(opt.cost / 1_000).toFixed(0)}k upfront` : 'No direct cost'}
                     </span>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>

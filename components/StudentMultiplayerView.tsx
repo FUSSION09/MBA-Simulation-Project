@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { CohortRoom, CohortTeam } from '@/lib/engine/room-manager';
 import { CompanyDecision, CompanyReport } from '@/lib/engine/types';
 import { OverviewTab } from '@/components/OverviewTab';
@@ -475,242 +476,226 @@ export const StudentMultiplayerView: React.FC<StudentMultiplayerViewProps> = ({ 
         </div>
       </header>
 
-      {/* Navigation Bar */}
+      {/* Navigation Bar with Motion layout pill */}
       <nav className="hidden md:block bg-slate-900/60 border-b border-slate-800/80 px-4">
         <div className="max-w-7xl mx-auto flex space-x-2 sm:space-x-4">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`py-3 px-3 text-xs font-semibold flex items-center space-x-2 border-b-2 transition cursor-pointer ${
-              activeTab === 'overview'
-                ? 'border-purple-500 text-purple-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4" />
-            <span>Team Cockpit</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('decisions')}
-            className={`py-3 px-3 text-xs font-semibold flex items-center space-x-2 border-b-2 transition cursor-pointer relative ${
-              activeTab === 'decisions'
-                ? 'border-purple-500 text-purple-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Sliders className="w-4 h-4" />
-            <span>C-Suite Decisions</span>
-            {!hasSubmittedThisQuarter && (
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping absolute top-2 right-1" />
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('financials')}
-            className={`py-3 px-3 text-xs font-semibold flex items-center space-x-2 border-b-2 transition cursor-pointer ${
-              activeTab === 'financials'
-                ? 'border-purple-500 text-purple-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <DollarSign className="w-4 h-4" />
-            <span>Financial Statements</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('standings')}
-            className={`py-3 px-3 text-xs font-semibold flex items-center space-x-2 border-b-2 transition cursor-pointer ${
-              activeTab === 'standings'
-                ? 'border-purple-500 text-purple-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Award className="w-4 h-4 text-amber-400" />
-            <span>Cohort Standings</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('dilemmas')}
-            className={`py-3 px-3 text-xs font-semibold flex items-center space-x-2 border-b-2 transition cursor-pointer ${
-              activeTab === 'dilemmas'
-                ? 'border-purple-500 text-purple-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
-            <span>Dilemmas</span>
-          </button>
+          {[
+            { id: 'overview', label: 'Team Cockpit', icon: BarChart3 },
+            { id: 'decisions', label: 'C-Suite Decisions', icon: Sliders, hasBadge: !hasSubmittedThisQuarter },
+            { id: 'financials', label: 'Financial Statements', icon: DollarSign },
+            { id: 'standings', label: 'Cohort Standings', icon: Award, iconColor: 'text-amber-400' },
+            { id: 'dilemmas', label: 'Dilemmas', icon: AlertTriangle, iconColor: 'text-amber-400' },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                className={`relative py-3 px-3 text-xs font-semibold flex items-center space-x-2 transition cursor-pointer ${
+                  isActive ? 'text-purple-400' : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${tab.iconColor || ''}`} />
+                <span>{tab.label}</span>
+                {tab.hasBadge && (
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping absolute top-2 right-1" />
+                )}
+                {isActive && (
+                  <motion.div
+                    layoutId="activeCohortTab"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-500 shadow-sm shadow-purple-500/50"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
       </nav>
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-3.5 sm:p-6 space-y-4">
-        {/* Flash Notifications */}
-        {submitSuccessNotice && (
-          <div className="bg-emerald-950/40 border border-emerald-800/80 rounded-xl p-3.5 flex items-center justify-between text-xs text-emerald-300 shadow-sm animate-in fade-in duration-200">
-            <div className="flex items-center space-x-2.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>{submitSuccessNotice}</span>
-            </div>
-            <button
-              onClick={() => setSubmitSuccessNotice(null)}
-              className="text-emerald-400 hover:text-emerald-200 cursor-pointer ml-3 p-1"
+        {/* Flash Notifications with AnimatePresence */}
+        <AnimatePresence>
+          {submitSuccessNotice && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="bg-emerald-950/40 border border-emerald-800/80 rounded-xl p-3.5 flex items-center justify-between text-xs text-emerald-300 shadow-sm"
             >
-              ×
-            </button>
-          </div>
-        )}
-
-        {/* Tab 1: Overview */}
-        {activeTab === 'overview' && (
-          <OverviewTab
-            company={currentCompany}
-            macro={currentRoom.simulation.macro}
-            allCompanies={currentRoom.simulation.companies}
-            onNavigateToDecisions={() => setActiveTab('decisions')}
-            onNavigateToDilemma={() => setActiveTab('dilemmas')}
-          />
-        )}
-
-        {/* Tab 2: Decisions */}
-        {activeTab === 'decisions' && playerDecisions && (
-          <div className="space-y-4">
-            {/* Top Decision Submission Card */}
-            <div className="bg-gradient-to-r from-purple-950/60 to-slate-900 border border-purple-800/60 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
-              <div>
-                <h3 className="font-bold text-sm text-white flex items-center space-x-2">
-                  <Lock className="w-4 h-4 text-purple-400" />
-                  <span>Quarter {currentRoom.quarter} Decision Submission</span>
-                </h3>
-                <p className="text-xs text-slate-300 mt-0.5">
-                  {hasSubmittedThisQuarter
-                    ? 'Your team decisions are currently locked. You may update and resubmit prior to instructor round resolution.'
-                    : 'Draft your strategy across the 5 C-suite tabs, then lock decisions to submit to the instructor.'}
-                </p>
+              <div className="flex items-center space-x-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{submitSuccessNotice}</span>
               </div>
-
               <button
-                onClick={handleSubmitDecisions}
-                disabled={isSubmitting}
-                className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition cursor-pointer active:scale-95 shadow-md ring-1 ring-purple-400/30 disabled:opacity-50"
+                onClick={() => setSubmitSuccessNotice(null)}
+                className="text-emerald-400 hover:text-emerald-200 cursor-pointer ml-3 p-1"
               >
-                {isSubmitting ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Locking Decisions...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    <span>{hasSubmittedThisQuarter ? 'Resubmit & Lock Q' + currentRoom.quarter : 'Lock & Submit Q' + currentRoom.quarter + ' Decisions'}</span>
-                  </>
-                )}
+                ×
               </button>
-            </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-            <DecisionsTab
-              company={currentCompany}
-              decisions={playerDecisions}
-              onChange={setPlayerDecisions}
-              onReset={() => resetTeamDecisions(currentCompany, currentRoom.quarter)}
-            />
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+          >
+            {activeTab === 'overview' && (
+              <OverviewTab
+                company={currentCompany}
+                macro={currentRoom.simulation.macro}
+                allCompanies={currentRoom.simulation.companies}
+                onNavigateToDecisions={() => setActiveTab('decisions')}
+                onNavigateToDilemma={() => setActiveTab('dilemmas')}
+              />
+            )}
 
-        {/* Tab 3: Financials */}
-        {activeTab === 'financials' && (
-          <FinancialsTab company={currentCompany} />
-        )}
+            {activeTab === 'decisions' && playerDecisions && (
+              <div className="space-y-4">
+                {/* Top Decision Submission Card */}
+                <div className="bg-gradient-to-r from-purple-950/60 to-slate-900 border border-purple-800/60 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
+                  <div>
+                    <h3 className="font-bold text-sm text-white flex items-center space-x-2">
+                      <Lock className="w-4 h-4 text-purple-400" />
+                      <span>Quarter {currentRoom.quarter} Decision Submission</span>
+                    </h3>
+                    <p className="text-xs text-slate-300 mt-0.5">
+                      {hasSubmittedThisQuarter
+                        ? 'Your team decisions are currently locked. You may update and resubmit prior to instructor round resolution.'
+                        : 'Draft your strategy across the 5 C-suite tabs, then lock decisions to submit to the instructor.'}
+                    </p>
+                  </div>
 
-        {/* Tab 4: Cohort Standings */}
-        {activeTab === 'standings' && (
-          <div className="space-y-4">
-            <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 sm:p-5 shadow-sm">
-              <h2 className="font-bold text-sm text-white flex items-center space-x-2 mb-3">
-                <Award className="w-4 h-4 text-amber-400" />
-                <span>Live Cohort Standings — Quarter {currentRoom.quarter}</span>
-              </h2>
+                  <motion.button
+                    onClick={handleSubmitDecisions}
+                    disabled={isSubmitting}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition cursor-pointer shadow-md ring-1 ring-purple-400/30 disabled:opacity-50"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Locking Decisions...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>{hasSubmittedThisQuarter ? 'Resubmit & Lock Q' + currentRoom.quarter : 'Lock & Submit Q' + currentRoom.quarter + ' Decisions'}</span>
+                      </>
+                    )}
+                  </motion.button>
+                </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
-                      <th className="py-2.5 px-3">Team / Enterprise</th>
-                      <th className="py-2.5 px-3">Members</th>
-                      <th className="py-2.5 px-3 text-right">Stock Price</th>
-                      <th className="py-2.5 px-3 text-right">Market Cap</th>
-                      <th className="py-2.5 px-3 text-right">Scorecard</th>
-                      <th className="py-2.5 px-3 text-center">Round Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/80">
-                    {Object.values(currentRoom.teams).map((team) => {
-                      const comp = currentRoom.simulation.companies[team.teamId];
-                      const isMyTeam = team.teamId === myTeamId;
-                      return (
-                        <tr
-                          key={team.teamId}
-                          className={`hover:bg-slate-800/40 transition ${
-                            isMyTeam ? 'bg-purple-950/20 font-semibold' : ''
-                          }`}
-                        >
-                          <td className="py-3 px-3">
-                            <div className="flex items-center space-x-2">
-                              <span className="font-bold text-slate-200">{team.teamName}</span>
-                              {isMyTeam && (
-                                <span className="text-[10px] bg-purple-950 text-purple-300 border border-purple-800 px-1.5 py-0.2 rounded font-medium">
-                                  Your Team
-                                </span>
-                              )}
-                              {team.isAi && (
-                                <span className="text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-1.5 py-0.2 rounded font-medium">
-                                  AI
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="py-3 px-3 text-slate-400">{team.members.join(', ')}</td>
-                          <td className="py-3 px-3 text-right font-mono font-bold text-slate-200">
-                            ${comp ? comp.stockPrice.toFixed(2) : '25.00'}
-                          </td>
-                          <td className="py-3 px-3 text-right font-mono text-slate-300">
-                            ${comp ? (comp.marketCap / 1_000_000).toFixed(1) : '250.0'}M
-                          </td>
-                          <td className="py-3 px-3 text-right font-mono text-amber-300 font-bold">
-                            {comp ? comp.scorecard.totalScore : 75}
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            {team.hasSubmitted ? (
-                              <span className="inline-flex items-center space-x-1 text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2 py-0.5 rounded-full">
-                                <CheckCircle2 className="w-3 h-3" />
-                                <span>Decisions Locked</span>
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center space-x-1 text-[11px] font-medium text-amber-400 bg-amber-950/60 border border-amber-800/80 px-2 py-0.5 rounded-full">
-                                <Clock className="w-3 h-3" />
-                                <span>Drafting</span>
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                <DecisionsTab
+                  company={currentCompany}
+                  decisions={playerDecisions}
+                  onChange={setPlayerDecisions}
+                  onReset={() => resetTeamDecisions(currentCompany, currentRoom.quarter)}
+                />
               </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {/* Tab 5: Dilemmas */}
-        {activeTab === 'dilemmas' && (
-          <DilemmasTab
-            quarter={currentRoom.quarter}
-            company={currentCompany}
-            onSelectChoice={handleSelectDilemma}
-            selectedChoiceId={selectedDilemmaId}
-          />
-        )}
+            {activeTab === 'financials' && (
+              <FinancialsTab company={currentCompany} />
+            )}
+
+            {activeTab === 'standings' && (
+              <div className="space-y-4">
+                <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 sm:p-5 shadow-sm">
+                  <h2 className="font-bold text-sm text-white flex items-center space-x-2 mb-3">
+                    <Award className="w-4 h-4 text-amber-400" />
+                    <span>Live Cohort Standings — Quarter {currentRoom.quarter}</span>
+                  </h2>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
+                          <th className="py-2.5 px-3">Team / Enterprise</th>
+                          <th className="py-2.5 px-3">Members</th>
+                          <th className="py-2.5 px-3 text-right">Stock Price</th>
+                          <th className="py-2.5 px-3 text-right">Market Cap</th>
+                          <th className="py-2.5 px-3 text-right">Scorecard</th>
+                          <th className="py-2.5 px-3 text-center">Round Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/80">
+                        {Object.values(currentRoom.teams).map((team) => {
+                          const comp = currentRoom.simulation.companies[team.teamId];
+                          const isMyTeam = team.teamId === myTeamId;
+                          return (
+                            <tr
+                              key={team.teamId}
+                              className={`hover:bg-slate-800/40 transition ${
+                                isMyTeam ? 'bg-purple-950/20 font-semibold' : ''
+                              }`}
+                            >
+                              <td className="py-3 px-3">
+                                <div className="flex items-center space-x-2">
+                                  <span className="font-bold text-slate-200">{team.teamName}</span>
+                                  {isMyTeam && (
+                                    <span className="text-[10px] bg-purple-950 text-purple-300 border border-purple-800 px-1.5 py-0.2 rounded font-medium">
+                                      Your Team
+                                    </span>
+                                  )}
+                                  {team.isAi && (
+                                    <span className="text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-1.5 py-0.2 rounded font-medium">
+                                      AI
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="py-3 px-3 text-slate-400">{team.members.join(', ')}</td>
+                              <td className="py-3 px-3 text-right font-mono font-bold text-slate-200">
+                                ${comp ? comp.stockPrice.toFixed(2) : '25.00'}
+                              </td>
+                              <td className="py-3 px-3 text-right font-mono text-slate-300">
+                                ${comp ? (comp.marketCap / 1_000_000).toFixed(1) : '250.0'}M
+                              </td>
+                              <td className="py-3 px-3 text-right font-mono text-amber-300 font-bold">
+                                {comp ? comp.scorecard.totalScore : 75}
+                              </td>
+                              <td className="py-3 px-3 text-center">
+                                {team.hasSubmitted ? (
+                                  <span className="inline-flex items-center space-x-1 text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2 py-0.5 rounded-full">
+                                    <CheckCircle2 className="w-3 h-3" />
+                                    <span>Decisions Locked</span>
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center space-x-1 text-[11px] font-medium text-amber-400 bg-amber-950/60 border border-amber-800/80 px-2 py-0.5 rounded-full">
+                                    <Clock className="w-3 h-3" />
+                                    <span>Drafting</span>
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'dilemmas' && (
+              <DilemmasTab
+                quarter={currentRoom.quarter}
+                company={currentCompany}
+                onSelectChoice={handleSelectDilemma}
+                selectedChoiceId={selectedDilemmaId}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Mobile Bottom App Bar */}

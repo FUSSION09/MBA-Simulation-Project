@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { CompanyDecision, CompanyReport, MarketSegment } from '@/lib/engine/types';
 import { FactoryApparatus3D } from './FactoryApparatus3D';
 import {
@@ -136,65 +137,54 @@ export const DecisionsTab: React.FC<DecisionsTabProps> = ({
 
       {/* C-Suite Sub-navigation Tabs (Scrollable on small phones) */}
       <div className="flex space-x-1.5 overflow-x-auto pb-1 border-b border-slate-800">
-        <button
-          onClick={() => setActiveSubTab('marketing')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition cursor-pointer shrink-0 ${
-            activeSubTab === 'marketing'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-          }`}
-        >
-          <Tag className="w-4 h-4" />
-          <span>Marketing (CMO)</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('operations')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition cursor-pointer shrink-0 ${
-            activeSubTab === 'operations'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-          }`}
-        >
-          <Factory className="w-4 h-4" />
-          <span>Operations (COO)</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('hr')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition cursor-pointer shrink-0 ${
-            activeSubTab === 'hr'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-          }`}
-        >
-          <Users className="w-4 h-4" />
-          <span>Workforce (CHRO)</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('finance')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition cursor-pointer shrink-0 ${
-            activeSubTab === 'finance'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-          }`}
-        >
-          <Landmark className="w-4 h-4" />
-          <span>Treasury (CFO)</span>
-        </button>
+        {[
+          { id: 'marketing', label: 'Marketing (CMO)', icon: Tag },
+          { id: 'operations', label: 'Operations (COO)', icon: Factory },
+          { id: 'hr', label: 'Workforce (CHRO)', icon: Users },
+          { id: 'finance', label: 'Treasury (CFO)', icon: Landmark },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeSubTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveSubTab(tab.id as typeof activeSubTab)}
+              className={`relative min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition cursor-pointer shrink-0 ${
+                isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="activeSubTabPill"
+                  className="absolute inset-0 bg-blue-600 rounded-lg shadow-sm"
+                  transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                />
+              )}
+              <Icon className="w-4 h-4 relative z-10" />
+              <span className="relative z-10">{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Overtime Alert */}
-      {isOvertime && (
-        <div className="bg-amber-950/40 border border-amber-800/80 text-amber-300 rounded-xl p-3 flex items-start space-x-2.5 text-xs">
-          <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <div>
-            <span className="font-semibold">Plant Overtime Active: </span>
-            {(totalProduction - company.plantCapacity).toLocaleString()} units exceed standard capacity and will incur a 50% overtime labor surcharge.
-          </div>
-        </div>
-      )}
+      {/* Overtime Alert with AnimatePresence */}
+      <AnimatePresence>
+        {isOvertime && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+            className="bg-amber-950/40 border border-amber-800/80 text-amber-300 rounded-xl p-3 flex items-start space-x-2.5 text-xs"
+          >
+            <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-semibold">Plant Overtime Active: </span>
+              {(totalProduction - company.plantCapacity).toLocaleString()} units exceed standard capacity and will incur a 50% overtime labor surcharge.
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Subtab 1: Marketing & Pricing */}
       {activeSubTab === 'marketing' && (

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { CompanyReport, MacroEnvironment } from '@/lib/engine/types';
 import {
   TrendingUp,
@@ -48,11 +49,13 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-slate-100 sticky top-0 z-50">
-      {/* Top micro progress ticker */}
-      <div className="w-full bg-slate-950 h-1">
-        <div
-          className="bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 h-1 transition-all duration-500"
-          style={{ width: `${progressPct}%` }}
+      {/* Top micro progress ticker with spring animation */}
+      <div className="w-full bg-slate-950 h-1 overflow-hidden">
+        <motion.div
+          className="bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 h-1"
+          initial={{ width: 0 }}
+          animate={{ width: `${progressPct}%` }}
+          transition={{ type: "spring", stiffness: 120, damping: 20 }}
         />
       </div>
 
@@ -132,30 +135,34 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Action Buttons */}
           <div className="flex items-center space-x-1.5 shrink-0">
             {onReturnToPortal && (
-              <button
+              <motion.button
                 onClick={onReturnToPortal}
-                className="h-9 px-2.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg flex items-center space-x-1.5 transition active:scale-95 cursor-pointer"
+                whileTap={{ scale: 0.95 }}
+                className="h-9 px-2.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg flex items-center space-x-1.5 transition cursor-pointer"
                 title="Return to Main Portal"
               >
                 <Home className="w-3.5 h-3.5 text-slate-400" />
                 <span className="hidden sm:inline">Portal</span>
-              </button>
+              </motion.button>
             )}
 
             {onOpenRoomModal && (
-              <button
+              <motion.button
                 onClick={onOpenRoomModal}
-                className="hidden sm:flex h-9 px-3 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg items-center space-x-1 transition active:scale-95 cursor-pointer"
+                whileTap={{ scale: 0.95 }}
+                className="hidden sm:flex h-9 px-3 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg items-center space-x-1 transition cursor-pointer"
               >
                 <Users className="w-3.5 h-3.5 text-blue-400" />
                 <span>Rooms</span>
-              </button>
+              </motion.button>
             )}
 
-            <button
+            <motion.button
               onClick={onAdvance}
               disabled={isAdvancing || isCompleted}
-              className={`min-h-[38px] px-3 sm:px-4 rounded-lg font-semibold text-xs flex items-center space-x-1.5 shadow-sm transition active:scale-95 cursor-pointer ${
+              whileHover={!isAdvancing && !isCompleted ? { scale: 1.03 } : {}}
+              whileTap={!isAdvancing && !isCompleted ? { scale: 0.95 } : {}}
+              className={`min-h-[38px] px-3 sm:px-4 rounded-lg font-semibold text-xs flex items-center space-x-1.5 shadow-sm transition cursor-pointer ${
                 isCompleted
                   ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
                   : 'bg-emerald-600 hover:bg-emerald-500 text-white ring-1 ring-emerald-400/30'
@@ -175,41 +182,50 @@ export const Header: React.FC<HeaderProps> = ({
                   <span className="sm:hidden">Q{quarter}</span>
                 </>
               )}
-            </button>
+            </motion.button>
 
             {/* Mobile Expand Toggle */}
-            <button
+            <motion.button
               onClick={() => setMobileExpanded(!mobileExpanded)}
+              whileTap={{ scale: 0.95 }}
               className="sm:hidden w-9 h-9 flex items-center justify-center bg-slate-800 text-slate-300 rounded-lg border border-slate-700 active:bg-slate-700 cursor-pointer"
               aria-label="Toggle mobile details"
             >
               {mobileExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </button>
+            </motion.button>
           </div>
         </div>
 
-        {/* Mobile Dropdown Drawer */}
-        {mobileExpanded && (
-          <div className="sm:hidden mt-3 pt-3 border-t border-slate-800/80 grid grid-cols-3 gap-2 text-center text-xs animate-in slide-in-from-top-2 duration-150">
-            <div className="bg-slate-950/70 p-2 rounded-lg border border-slate-800/80">
-              <span className="text-[10px] text-slate-400 block uppercase">Market Cap</span>
-              <span className="font-mono font-bold text-slate-200">${(company.marketCap / 1_000_000).toFixed(1)}M</span>
-            </div>
-            <div className="bg-slate-950/70 p-2 rounded-lg border border-slate-800/80">
-              <span className="text-[10px] text-slate-400 block uppercase">Credit Tier</span>
-              <span className="font-mono font-bold text-emerald-400">{company.creditRating}</span>
-            </div>
-            <div className="bg-slate-950/70 p-2 rounded-lg border border-slate-800/80">
-              <span className="text-[10px] text-slate-400 block uppercase">Scorecard</span>
-              <span className="font-mono font-bold text-amber-300">{company.scorecard.totalScore} pts</span>
-            </div>
-            <div className="col-span-3 text-[10px] text-slate-400 bg-slate-950/40 py-1.5 px-2 rounded flex justify-between mt-1">
-              <span>GDP Growth: +{macro.gdpGrowthPct}%</span>
-              <span>Fed Rate: {macro.benchmarkInterestRate}%</span>
-              <span>Inflation: {macro.inflationPct}%</span>
-            </div>
-          </div>
-        )}
+        {/* Mobile Dropdown Drawer with AnimatePresence */}
+        <AnimatePresence>
+          {mobileExpanded && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="sm:hidden mt-3 pt-3 border-t border-slate-800/80 grid grid-cols-3 gap-2 text-center text-xs overflow-hidden"
+            >
+              <div className="bg-slate-950/70 p-2 rounded-lg border border-slate-800/80">
+                <span className="text-[10px] text-slate-400 block uppercase">Market Cap</span>
+                <span className="font-mono font-bold text-slate-200">${(company.marketCap / 1_000_000).toFixed(1)}M</span>
+              </div>
+              <div className="bg-slate-950/70 p-2 rounded-lg border border-slate-800/80">
+                <span className="text-[10px] text-slate-400 block uppercase">Credit Tier</span>
+                <span className="font-mono font-bold text-emerald-400">{company.creditRating}</span>
+              </div>
+              <div className="bg-slate-950/70 p-2 rounded-lg border border-slate-800/80">
+                <span className="text-[10px] text-slate-400 block uppercase">Scorecard</span>
+                <span className="font-mono font-bold text-amber-300">{company.scorecard.totalScore} pts</span>
+              </div>
+              <div className="col-span-3 text-[10px] text-slate-400 bg-slate-950/40 py-1.5 px-2 rounded flex justify-between mt-1">
+                <span>GDP Growth: +{macro.gdpGrowthPct}%</span>
+                <span>Fed Rate: {macro.benchmarkInterestRate}%</span>
+                <span>Inflation: {macro.inflationPct}%</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </header>
   );

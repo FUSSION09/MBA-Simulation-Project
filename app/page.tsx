@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { CompanyDecision, CompanyReport, SimulationState } from '@/lib/engine/types';
 import { Header } from '@/components/Header';
 import { OverviewTab } from '@/components/OverviewTab';
@@ -218,129 +219,117 @@ export default function Home() {
         onReturnToPortal={() => setAppMode('portal')}
       />
 
-      {/* Desktop / Tablet Navigation Bar (Pure Solo Tabs) */}
+      {/* Desktop / Tablet Navigation Bar (Pure Solo Tabs with Motion Indicator) */}
       <nav className="hidden md:block bg-slate-900/60 border-b border-slate-800/80 px-4">
         <div className="max-w-7xl mx-auto flex space-x-1 sm:space-x-4 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`py-3 px-3 text-xs font-semibold flex items-center space-x-2 border-b-2 transition cursor-pointer shrink-0 ${
-              activeTab === 'overview'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4" />
-            <span>Executive Cockpit</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('decisions')}
-            className={`py-3 px-3 text-xs font-semibold flex items-center space-x-2 border-b-2 transition cursor-pointer shrink-0 ${
-              activeTab === 'decisions'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Sliders className="w-4 h-4" />
-            <span>C-Suite Decisions</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('financials')}
-            className={`py-3 px-3 text-xs font-semibold flex items-center space-x-2 border-b-2 transition cursor-pointer shrink-0 ${
-              activeTab === 'financials'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <DollarSign className="w-4 h-4" />
-            <span>Financial Statements</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('intel')}
-            className={`py-3 px-3 text-xs font-semibold flex items-center space-x-2 border-b-2 transition cursor-pointer shrink-0 ${
-              activeTab === 'intel'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4" />
-            <span>Market Intelligence</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('dilemmas')}
-            className={`py-3 px-3 text-xs font-semibold flex items-center space-x-2 border-b-2 transition cursor-pointer shrink-0 ${
-              activeTab === 'dilemmas'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
-            <span>Strategic Dilemmas</span>
-          </button>
+          {[
+            { id: 'overview', label: 'Executive Cockpit', icon: BarChart3 },
+            { id: 'decisions', label: 'C-Suite Decisions', icon: Sliders },
+            { id: 'financials', label: 'Financial Statements', icon: DollarSign },
+            { id: 'intel', label: 'Market Intelligence', icon: TrendingUp },
+            { id: 'dilemmas', label: 'Strategic Dilemmas', icon: AlertTriangle, iconColor: 'text-amber-400' },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                className={`relative py-3 px-3 text-xs font-semibold flex items-center space-x-2 transition cursor-pointer shrink-0 ${
+                  isActive ? 'text-blue-400' : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${tab.iconColor || ''}`} />
+                <span>{tab.label}</span>
+                {isActive && (
+                  <motion.div
+                    layoutId="activeNavTab"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 shadow-sm shadow-blue-500/50"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
       </nav>
 
-      {/* Main Content Area */}
+      {/* Main Content Area with Smooth Tab Transitions */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-3.5 sm:p-6 space-y-4">
-        {/* Quarter Advancement Flash Debrief */}
-        {completedQuarterAlert && (
-          <div className="bg-emerald-950/40 border border-emerald-800/80 rounded-xl p-3.5 flex items-center justify-between text-xs text-emerald-300 shadow-sm animate-in fade-in duration-200">
-            <div className="flex items-center space-x-2.5">
-              <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>{completedQuarterAlert}</span>
-            </div>
-            <button
-              onClick={() => setCompletedQuarterAlert(null)}
-              className="text-emerald-400 hover:text-emerald-200 cursor-pointer ml-3 p-1 min-w-[32px] min-h-[32px] flex items-center justify-center"
-              aria-label="Dismiss alert"
+        {/* Quarter Advancement Flash Debrief with AnimatePresence */}
+        <AnimatePresence>
+          {completedQuarterAlert && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              transition={{ duration: 0.3 }}
+              className="bg-emerald-950/40 border border-emerald-800/80 rounded-xl p-3.5 flex items-center justify-between text-xs text-emerald-300 shadow-sm"
             >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+              <div className="flex items-center space-x-2.5">
+                <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{completedQuarterAlert}</span>
+              </div>
+              <button
+                onClick={() => setCompletedQuarterAlert(null)}
+                className="text-emerald-400 hover:text-emerald-200 cursor-pointer ml-3 p-1 min-w-[32px] min-h-[32px] flex items-center justify-center"
+                aria-label="Dismiss alert"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {activeTab === 'overview' && (
-          <OverviewTab
-            company={currentCompany}
-            macro={simState.macro}
-            allCompanies={simState.companies}
-            onNavigateToDecisions={() => setActiveTab('decisions')}
-            onNavigateToDilemma={() => setActiveTab('dilemmas')}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+          >
+            {activeTab === 'overview' && (
+              <OverviewTab
+                company={currentCompany}
+                macro={simState.macro}
+                allCompanies={simState.companies}
+                onNavigateToDecisions={() => setActiveTab('decisions')}
+                onNavigateToDilemma={() => setActiveTab('dilemmas')}
+              />
+            )}
 
-        {activeTab === 'decisions' && (
-          <DecisionsTab
-            company={currentCompany}
-            decisions={playerDecisions}
-            onChange={setPlayerDecisions}
-            onReset={() => resetDecisions(currentCompany, simState.currentQuarter)}
-          />
-        )}
+            {activeTab === 'decisions' && (
+              <DecisionsTab
+                company={currentCompany}
+                decisions={playerDecisions}
+                onChange={setPlayerDecisions}
+                onReset={() => resetDecisions(currentCompany, simState.currentQuarter)}
+              />
+            )}
 
-        {activeTab === 'financials' && (
-          <FinancialsTab company={currentCompany} />
-        )}
+            {activeTab === 'financials' && (
+              <FinancialsTab company={currentCompany} />
+            )}
 
-        {activeTab === 'intel' && (
-          <MarketIntelTab
-            currentCompany={currentCompany}
-            allCompanies={simState.companies}
-            macro={simState.macro}
-          />
-        )}
+            {activeTab === 'intel' && (
+              <MarketIntelTab
+                currentCompany={currentCompany}
+                allCompanies={simState.companies}
+                macro={simState.macro}
+              />
+            )}
 
-        {activeTab === 'dilemmas' && (
-          <DilemmasTab
-            quarter={simState.currentQuarter}
-            company={currentCompany}
-            onSelectChoice={handleSelectDilemma}
-            selectedChoiceId={selectedDilemmaId}
-          />
-        )}
+            {activeTab === 'dilemmas' && (
+              <DilemmasTab
+                quarter={simState.currentQuarter}
+                company={currentCompany}
+                onSelectChoice={handleSelectDilemma}
+                selectedChoiceId={selectedDilemmaId}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Fixed Mobile Bottom App Bar (Optimized for Thumb Reach on Phones - 5 Solo Tabs) */}

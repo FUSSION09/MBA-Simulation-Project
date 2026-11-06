@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { CompanyReport } from '@/lib/engine/types';
 import { FileText, DollarSign, Scale, ArrowDownUp, ShieldCheck } from 'lucide-react';
 
@@ -65,43 +66,35 @@ export const FinancialsTab: React.FC<FinancialsTabProps> = ({ company }) => {
         </div>
       </div>
 
-      {/* Statement Selector */}
+      {/* Statement Selector with Motion Layout Pill */}
       <div className="flex items-center space-x-2 border-b border-slate-800 pb-2">
-        <button
-          onClick={() => setStatementView('income')}
-          className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition cursor-pointer ${
-            statementView === 'income'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-          }`}
-        >
-          <DollarSign className="w-3.5 h-3.5" />
-          <span>Income Statement (P&L)</span>
-        </button>
-
-        <button
-          onClick={() => setStatementView('balance')}
-          className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition cursor-pointer ${
-            statementView === 'balance'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-          }`}
-        >
-          <Scale className="w-3.5 h-3.5" />
-          <span>Balance Sheet</span>
-        </button>
-
-        <button
-          onClick={() => setStatementView('cashflow')}
-          className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition cursor-pointer ${
-            statementView === 'cashflow'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-          }`}
-        >
-          <ArrowDownUp className="w-3.5 h-3.5" />
-          <span>Cash Flow Statement</span>
-        </button>
+        {[
+          { id: 'income', label: 'Income Statement (P&L)', icon: DollarSign },
+          { id: 'balance', label: 'Balance Sheet', icon: Scale },
+          { id: 'cashflow', label: 'Cash Flow Statement', icon: ArrowDownUp },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = statementView === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setStatementView(tab.id as typeof statementView)}
+              className={`relative px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition cursor-pointer ${
+                isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="statementTabPill"
+                  className="absolute inset-0 bg-blue-600 rounded-lg shadow-sm"
+                  transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                />
+              )}
+              <Icon className="w-3.5 h-3.5 relative z-10" />
+              <span className="relative z-10">{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Statement View 1: Income Statement */}
